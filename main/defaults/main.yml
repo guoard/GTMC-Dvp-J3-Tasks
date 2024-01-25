@@ -1,0 +1,7 @@
+---
+docker_data_root: /data/docker_data
+registry_data_root: /data/registry
+registry_port: 5000
+registry_user: user
+registry_pass: password
+registry_host: _

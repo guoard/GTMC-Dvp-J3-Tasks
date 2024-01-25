@@ -1,0 +1,20 @@
+---
+- name: Ensure iptables-persistent is installed
+  apt:
+    name: iptables-persistent
+    state: present
+
+- name: Copy iptables rules
+  template:
+    src: "iptables.rule"
+    dest: "/etc/iptables/rules.v4"
+    owner: root
+    group: root
+    mode: 0640
+  notify: restart netfilter-persistent
+
+- name: Ensure netfilter-persistent is enabled and started
+  systemd:
+    name: netfilter-persistent
+    enabled: true
+    state: started

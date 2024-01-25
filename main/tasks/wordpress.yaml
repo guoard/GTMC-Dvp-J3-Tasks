@@ -1,0 +1,22 @@
+---
+- name: Copy file with owner and permissions
+  copy:
+    src: wordpress.compose.yaml
+    dest: /root/wordpress.compose.yaml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Run docker compose pull
+  command: docker compose -f /root/wordpress.compose.yaml pull
+  register: compose_pull_output
+  changed_when: "'Pull complete' in compose_pull_output.stderr"
+
+- name: Run docker compose up
+  command: docker compose -f /root/wordpress.compose.yaml up -d
+  register: compose_up_output
+  changed_when: "'Recreate' in compose_up_output.stderr"
+
+- name: Show docker compose up results
+  debug:
+    var: compose_up_output

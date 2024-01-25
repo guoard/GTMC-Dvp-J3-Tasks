@@ -1,0 +1,38 @@
+---
+- hosts: all
+  gather_facts: true
+  become: true
+
+  handlers:
+    - name: Remove resolv.conf
+      file:
+        path: /etc/resolv.conf
+        state: absent
+
+    - name: Create new resolv.conf
+      copy:
+        dest: /etc/resolv.conf
+        content: |
+          nameserver 178.22.122.100
+          nameserver 185.51.200.2
+        owner: root
+        group: root
+        mode: 0644
+
+  tasks:
+    - name: Disable systemd-resolved
+      systemd:
+        name: systemd-resolved
+        state: stopped
+        enabled: no
+        masked: yes
+      notify:
+        # Remove because of symbolic link
+        - "Remove resolv.conf"
+        - "Create new resolv.conf"
+
+- hosts: all
+  gather_facts: true
+  become: true
+  roles:
+    - main

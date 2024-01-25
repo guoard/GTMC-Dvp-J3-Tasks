@@ -1,0 +1,13 @@
+{ 
+  "data-root": "{{ docker_data_root }}",
+  "registry-mirrors": ["http://localhost"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  },
+  "bip": "10.0.1.1/24",
+  "default-address-pools": [
+    { "base": "10.0.64.0/18", "size": 24 }
+  ]
+}

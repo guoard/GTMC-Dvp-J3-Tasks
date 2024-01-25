@@ -1,0 +1,40 @@
+---
+- name: restart netfilter-persistent
+  systemd:
+    name: netfilter-persistent
+    state: restarted
+  notify:
+    - restart docker
+
+- name: daemon-reload
+  systemd:
+    daemon_reload: true
+
+- name: enable docker
+  systemd:
+    name: docker
+    enabled: true
+
+- name: start docker
+  systemd:
+    name: docker
+    state: started
+
+- name: restart docker
+  systemd:
+    name: docker
+    state: restarted
+
+- name: delete /var/lib/docker
+  file:
+    path: /var/lib/docker
+    state: absent
+
+- name: check nginx config
+  command: docker exec nginx nginx -t
+
+- name: reload nginx container
+  command: docker kill -s HUP nginx
+
+- name: restart registry container
+  command: docker restart registry

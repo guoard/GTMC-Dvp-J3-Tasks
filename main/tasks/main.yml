@@ -1,0 +1,8 @@
+---
+- include_tasks: docker.yaml
+
+- include_tasks: registry.yaml
+
+- include_tasks: wordpress.yaml
+
+- include_tasks: iptables.yaml

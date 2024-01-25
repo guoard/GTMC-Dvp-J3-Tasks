@@ -1,0 +1,85 @@
+---
+- name: Create docker network
+  docker_network:
+    name: web
+
+- name: Create registry directory
+  file:
+    path: "{{ registry_data_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy registry config file
+  template:
+    src: registry/config.yaml.j2
+    dest: "{{ registry_data_root }}/config.yaml"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart registry container
+
+- name: Create docker registry container
+  docker_container:
+    name: registry
+    image: registry:2
+    state: started
+    restart_policy: unless-stopped
+    networks:
+      - name: web
+    volumes:
+      - "{{ registry_data_root }}/data:/var/lib/registry"
+      - "{{ registry_data_root }}/config.yaml:/etc/docker/registry/config.yml"
+
+    # published_ports:
+    #   - "{{ registry_port }}:5000"
+
+- name: Create nginx docker container
+  docker_container:
+    name: nginx
+    image: nginx:stable-alpine
+    state: started
+    restart_policy: unless-stopped
+    networks:
+      - name: web
+    volumes:
+      - /etc/nginx/conf.d:/etc/nginx/conf.d
+      - /etc/nginx/proxy.conf:/etc/nginx/proxy.conf:ro
+    published_ports:
+      - 80:80
+      - 443:443
+
+- name: Install requirements
+  apt:
+    state: present
+    update_cache: yes
+    cache_valid_time: 36000
+    name: 
+      - python3-pip
+
+- name: Install pre-requisites
+  pip:
+    name:
+      - passlib
+
+- name: Generate hashed password for docker registry auth
+  htpasswd:
+    path: /etc/nginx/conf.d/registry.password
+    name: "{{ registry_user }}"
+    password: "{{ registry_pass }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Apply nginx configuration for docker registry
+  template:
+    src: nginx/conf.j2
+    dest: /etc/nginx/conf.d/core.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - check nginx config
+    - reload nginx container
