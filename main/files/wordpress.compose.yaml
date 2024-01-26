@@ -13,6 +13,7 @@ services:
   mariadb:
     image: localhost/bitnami/mariadb:11.2
     container_name: mariadb
+    restart: unless-stopped
     networks:
       - app
     volumes:
@@ -25,6 +26,7 @@ services:
   wordpress:
     image: localhost/bitnami/wordpress:6
     container_name: wordpress
+    restart: unless-stopped
     networks:
       - web
       - app
