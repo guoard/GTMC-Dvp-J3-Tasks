@@ -83,3 +83,11 @@
   notify:
     - check nginx config
     - reload nginx container
+
+- name: Docker login
+  shell: |
+    set -o pipefail
+    echo "{{ registry_pass }}" | docker login --username "{{ registry_user }}" --password-stdin "{{ registry_url }}"
+  args:
+    executable: /bin/bash
+  changed_when: true

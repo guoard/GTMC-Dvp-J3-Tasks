@@ -5,3 +5,4 @@ registry_port: 5000
 registry_user: user
 registry_pass: password
 registry_host: _
+registry_url: localhost
